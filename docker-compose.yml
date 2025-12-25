@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  zoneminder:
+    container_name: zoneminder
+    hostname: zoneminder
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    shm_size: '2gb' # Recommended for ZoneMinder
+    environment:
+      ZM_DB_HOST: db
+      ZM_DB_USER: zmuser
+      ZM_DB_PASS: zmpass
+      ZM_DB_NAME: zm
+      TZ: ${TZ:-UTC}
+      PHP_TIMEZONE: ${TZ:-UTC}
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - ./data/zoneminder/events:/var/cache/zoneminder/events
+      - ./data/zoneminder/images:/var/cache/zoneminder/images
+      - ./data/zoneminder/logs:/var/log/zm
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    container_name: zoneminder-db
+    hostname: zoneminder-db
+    image: mariadb:10.5
+    environment:
+      MYSQL_USER: zmuser
+      MYSQL_PASSWORD: zmpass
+      MYSQL_ROOT_PASSWORD: rootpassword
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./data/db:/var/lib/mysql
+    restart: always
