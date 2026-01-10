@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eux
+set -eu
 
 /usr/local/bin/wait-for-it.sh db:3306 -t 60
 
@@ -27,34 +27,14 @@ EOF
     fi
 }
 
-enable_a2_mod() {
-    local mod_name=$1
-    if ! [ -f "/etc/apache2/mods-enabled/${mod_name}.load" ]; then
-        a2enmod "${mod_name}"
-    fi
-}
-
-enable_a2_conf() {
-    local conf_name=$1
-    if ! [ -f "/etc/apache2/conf-enabled/${conf_name}.conf" ]; then
-        a2enconf "${conf_name}"
-    fi
-}
-
 chown -R www-data:www-data \
-    /var/cache/zoneminder/events \
-    /var/cache/zoneminder/images \
+    /var/cache/zoneminder \
     /var/log/zm
 
 sed -i "s|;date.timezone =|date.timezone = ${TZ}|g" /etc/php/8.3/apache2/php.ini || true
 
 init_db
 init_zm_db_conf
-enable_a2_conf zoneminder
-enable_a2_mod rewrite
-enable_a2_mod headers
-enable_a2_mod expires
-enable_a2_mod cgi
 
 /usr/bin/zmpkg.pl start
 apachectl -D FOREGROUND
