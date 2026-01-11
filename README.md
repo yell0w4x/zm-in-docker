@@ -10,7 +10,11 @@ git clone https://github.com/yell0w4x/zm-in-docker.git && \
 
 Then open http://localhost in your browser.
 
-By default restricted with basic auth admin/admin credentials. Replace `.htpasswd` with your own file.
-
 Use https://github.com/yell0w4x/certgen to generate your own self-signed certificate with root CA. 
 Then add root CA to your system and have green brower address bar.
+
+To restrict access with basic auth run it as follows.
+
+```
+BASIC_AUTH_USER=admin BASIC_AUTH_PASSWORD=admin docker compose up --build
+```

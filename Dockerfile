@@ -12,7 +12,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY zoneminder.conf /etc/apache2/conf-available/zoneminder.conf
-COPY .htpasswd /etc/zm/.htpasswd
+
+ARG BASIC_AUTH_USER=
+ARG BASIC_AUTH_PASSWORD=
+RUN echo "BASIC_AUTH_USER: ${BASIC_AUTH_USER}" && \
+    echo "BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD}" && \
+    [ -n "${BASIC_AUTH_USER}" ] && [ -n "${BASIC_AUTH_PASSWORD}" ] && \
+    htpasswd -bc /etc/zm/.htpasswd "${BASIC_AUTH_USER}" "${BASIC_AUTH_PASSWORD}" || true 
 
 RUN a2enconf zoneminder && \
     a2enmod rewrite cgi headers expires ssl && \
@@ -30,7 +36,7 @@ COPY certs/my.org.crt /etc/ssl/certs/my.pem
 COPY certs/my.org.key /etc/ssl/private/my.key
 COPY certs/root-ca-my.org.crt /etc/apache2/ssl.crt/my-ca.crt
 
-RUN echo "order deny,allow\ndeny from all" > /var/www/html/.htaccess && \ 
+RUN echo -e "order deny,allow\ndeny from all" > /var/www/html/.htaccess && \ 
     chown www-data:www-data /var/www/html/.htaccess && \
     chmod 644 /var/www/html/.htaccess
 RUN sed -i -E 's|SSLCertificateFile\s+\/etc\/ssl\/certs\/ssl-cert-snakeoil\.pem|SSLCertificateFile      /etc/ssl/certs/my.pem|g' /etc/apache2/sites-available/default-ssl.conf && \

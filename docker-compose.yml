@@ -7,6 +7,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        BASIC_AUTH_USER: "${BASIC_AUTH_USER}"
+        BASIC_AUTH_PASSWORD: "${BASIC_AUTH_PASSWORD}"
     ports:
       - "443:443"
     shm_size: '2gb' # Recommended for ZoneMinder
