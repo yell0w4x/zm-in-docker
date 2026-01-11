@@ -13,6 +13,8 @@ services:
     ports:
       - "443:443"
     shm_size: '2gb' # Recommended for ZoneMinder
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       ZM_DB_HOST: db
       ZM_DB_USER: zmuser
